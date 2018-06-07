@@ -7,6 +7,9 @@ import com.netflix.sps.stage.Stage;
 import java.util.Set;
 
 
+/**
+ * The termination stage. Just print all results it received.
+ */
 public class SinkStage extends Stage<StartEventResult, Void> {
   private Gson gson = new Gson();
 
@@ -16,7 +19,6 @@ public class SinkStage extends Stage<StartEventResult, Void> {
 
   @Override
   public void process(StartEventResult data, DataStream<Void> outputStream) {
-    System.out.println("aaaa");
     String result = gson.toJson(data, StartEventResult.class);
     System.out.println(result);
   }

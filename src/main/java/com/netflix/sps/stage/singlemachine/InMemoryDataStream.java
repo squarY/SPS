@@ -1,7 +1,6 @@
 package com.netflix.sps.stage.singlemachine;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -12,7 +11,6 @@ import java.util.function.Function;
 public class InMemoryDataStream<T> implements DataStream<T> {
   private Map<Integer, BlockingQueue<T>> partitionedQueues = new HashMap<>();
   private Function<T, Integer> partitionFunc;
-  private Iterator<BlockingQueue<T>> queueIterator;
 
   public InMemoryDataStream(int partitionCount, Function<T, Integer> partitionFunc) {
     this.partitionFunc = partitionFunc;
@@ -25,11 +23,13 @@ public class InMemoryDataStream<T> implements DataStream<T> {
   @Override
   public void write(T data) {
     int partitionId = partitionFunc.apply(data);
+    // TODO set the timeout value to prevent it from waiting for ever. And also the retry logic.
     getQueue(partitionId).offer(data);
   }
 
   @Override
   public T read(int partitionId) {
+    // TODO set the timeout value to prevent it from waiting for ever. And also the retry logic.
     return getQueue(partitionId).poll();
   }
 

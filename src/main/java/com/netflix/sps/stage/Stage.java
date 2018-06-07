@@ -8,38 +8,45 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 
+/**
+ * Stage is a kind of worker which will do the real computation work. Each stage has an input stream and an output
+ * stream so that the data could be flow into and flow out of this stage.
+ *
+ * Stage only read data from the interested partitions in the input stream and we use round robin to iterate from the
+ * different input partitions. Regarding to the write, output stream will decide which partition the given data will be
+ * written to.
+ *
+ * If it's a time window stage, a timer will be initialized to execute the regular task on time.
+ */
 public abstract class Stage<I, O> implements Runnable {
   private static final Log LOGGER = LogFactory.getLog(Stage.class);
   private DataStream<I> input;
   private DataStream<O> output;
   private long timeWindow;
-  private Set<Integer> intputPartitionSet;
+  private Set<Integer> inputPartitionSet;
   private Iterator<Integer> inputPartitionIter;
 
-  public Stage(DataStream<I> input, DataStream<O> output, Set<Integer> inputPatitionSet) {
-    this(input, output, inputPatitionSet, 0);
+  /**
+   * Create a stage.
+   * @param input input stream.
+   * @param output output stream
+   * @param inputPartitionSet The partitions this stage are interested in the input stream.
+   */
+  public Stage(DataStream<I> input, DataStream<O> output, Set<Integer> inputPartitionSet) {
+    this(input, output, inputPartitionSet, 0);
   }
 
   public Stage(DataStream<I> input, DataStream<O> output, Set<Integer> inputPartitionSet, long timeWindow) {
     this.input = input;
     this.output = output;
     this.timeWindow = timeWindow;
-    this.intputPartitionSet = inputPartitionSet;
-    this.inputPartitionIter = this.intputPartitionSet.iterator();
+    this.inputPartitionSet = inputPartitionSet;
+    this.inputPartitionIter = this.inputPartitionSet.iterator();
   }
 
   @Override
   public void run() {
-    if (timeWindow > 0) {
-      Timer timer = new Timer();
-      timer.schedule(new TimerTask() {
-        @Override
-        public void run() {
-          onTimeWindow(output);
-        }
-      }, timeWindow, timeWindow);
-    }
-
+    initTimer();
     while (true) {
       I data = null;
       try {
@@ -54,9 +61,10 @@ public abstract class Stage<I, O> implements Runnable {
   }
 
   public I readData() {
+    // Choose the partition by the round robin method.
     if (!inputPartitionIter.hasNext()) {
       // Go back the start.
-      inputPartitionIter = intputPartitionSet.iterator();
+      inputPartitionIter = inputPartitionSet.iterator();
     }
     if (inputPartitionIter.hasNext()) {
       return input.read(inputPartitionIter.next());
@@ -69,5 +77,17 @@ public abstract class Stage<I, O> implements Runnable {
 
   public void onTimeWindow(DataStream<O> outputStream) {
     // By default do nothing, sub-class could override this method to implement the time window feature.
+  }
+
+  private void initTimer() {
+    if (timeWindow > 0) {
+      Timer timer = new Timer();
+      timer.schedule(new TimerTask() {
+        @Override
+        public void run() {
+          onTimeWindow(output);
+        }
+      }, timeWindow, timeWindow);
+    }
   }
 }

@@ -9,6 +9,9 @@ import com.netflix.sps.stage.Stage;
 import java.util.Set;
 
 
+/**
+ * The stage used to count the start event grouped by the device, title and country. Output the result every 1 sec.
+ */
 public class WindowCountStage extends Stage<StartEvent, StartEventResult> {
   private volatile Map<StartEventResult, Integer> eventCountMap = new HashMap<>();
 
@@ -20,6 +23,7 @@ public class WindowCountStage extends Stage<StartEvent, StartEventResult> {
   @Override
   public void process(StartEvent data, DataStream<StartEventResult> outputStream) {
     synchronized (eventCountMap) {
+      // Group and count.
       StartEventResult result = new StartEventResult(data);
       if (eventCountMap.containsKey(result)) {
         eventCountMap.put(result, eventCountMap.get(result) + 1);
@@ -31,7 +35,8 @@ public class WindowCountStage extends Stage<StartEvent, StartEventResult> {
 
   @Override
   public void onTimeWindow(DataStream<StartEventResult> outputStream) {
-    Map<StartEventResult, Integer> oldEventCountMap = null;
+    // Output result in every sec.
+    Map<StartEventResult, Integer> oldEventCountMap;
     synchronized (eventCountMap) {
       oldEventCountMap = this.eventCountMap;
       this.eventCountMap = new HashMap<>();
