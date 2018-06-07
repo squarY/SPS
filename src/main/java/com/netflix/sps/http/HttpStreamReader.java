@@ -1,4 +1,4 @@
-package com.netflix.sps;
+package com.netflix.sps.http;
 
 import java.io.BufferedReader;
 import java.io.Closeable;

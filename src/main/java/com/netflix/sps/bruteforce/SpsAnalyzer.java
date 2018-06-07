@@ -1,6 +1,7 @@
-package com.netflix.sps;
+package com.netflix.sps.bruteforce;
 
 import com.google.gson.Gson;
+import com.netflix.sps.http.HttpStreamReader;
 import com.netflix.sps.data.StartEvent;
 import com.netflix.sps.data.StartEventResult;
 import java.io.IOException;

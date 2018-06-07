@@ -1,5 +1,6 @@
 package com.netflix.sps;
 
+import com.netflix.sps.http.HttpStreamReader;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;

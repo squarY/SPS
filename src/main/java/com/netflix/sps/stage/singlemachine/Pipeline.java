@@ -1,6 +1,6 @@
 package com.netflix.sps.stage.singlemachine;
 
-import com.netflix.sps.HttpStreamReader;
+import com.netflix.sps.http.HttpStreamReader;
 import com.netflix.sps.data.StartEvent;
 import com.netflix.sps.data.StartEventResult;
 import com.netflix.sps.stage.DataStream;
@@ -88,6 +88,7 @@ public class Pipeline {
 
   public static void main(String[] args)
       throws IOException {
+    System.out.println("The SEDA solution for the SPS.");
     Pipeline pipeline = new Pipeline();
     // Create a http read to read the stream from the remote and output each line to the in memory stream with 2
     // partitions.
