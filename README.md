@@ -13,6 +13,9 @@ could process events as fast as they can, the data stream will buffer the input 
 ### Single machine SEDA solution
 Each stages run in the same JVM, so I choose the in memory message queue as the implementation of the data stream. Finally
 a pipeline is used to connect all stages to complete the analyze work.
+
+![alt text](https://github.com/squarY/SPS/blob/master/SEDAsingle.png)
+
 ### Distributed SEDA solution
 I don't have enough time to implement the distribution solution.(When I complete the single machine SEDA, it already took 4 hours)
 So I try to describe what I want to do here.
@@ -23,6 +26,8 @@ single machine solution:
 - We need a manager to manage the pipeline. We will give a description of the pipeline(code or config file) to the manager.
 Manager will create the stage in proper machine and also create topic in kafka as the data stream. Also it need to track
 the health and load of each stage to do the failover and load re-balance.
+
+![alt text](https://github.com/squarY/SPS/blob/master/SEDADistribute.png)
 
 ## Time window
 The requirement of this task is group and count the start events in every sec. That means we need to maintain a time window with length 1 sec.
